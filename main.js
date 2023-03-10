@@ -16,10 +16,6 @@ const requestWeather = async (url) => {
     processJsonData(jsonResponse);
 };
 
-const processJsonData = jsonData => {
-    console.log(jsonData);
-};
-
 const processWeatherRequest = async () => {
     const requestData = getData();
     const requestUrl = buildRequestUrl(requestData);
@@ -27,3 +23,12 @@ const processWeatherRequest = async () => {
 };
 
 processWeatherRequest();
+
+const processJsonData = jsonData => {
+    const data = {
+        city: jsonData.address,
+        currConditions: jsonData.currentConditions,
+        days: jsonData.days,
+    };
+    return data;
+};
