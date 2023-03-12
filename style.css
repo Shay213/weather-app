@@ -1,5 +1,10 @@
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap');
 
+:root{
+    --bg-color: rgb(138, 198, 238);
+    --secondary-bg-color: #f5f5f5e5;
+}
+
 body{
     margin: 0;
     padding: 0;
@@ -15,8 +20,10 @@ body{
 }
 
 .app{
-    padding: 15px;
+    padding: 25px;
     border-radius: 8px;
+    background-color: var(--bg-color);
+    width: 400px;
 }
 
 .app input{
@@ -25,7 +32,140 @@ body{
     outline: none;
     color: #fff;
 }
+.app input,
+.app input::placeholder{
+    color: #fff;
+    font-size: 1.5rem;
+    font-weight: 700;
+    width: 15ch;
+}
 
 .app .curr-date{
-    
+    color: #fff;
+    font-size: .9rem;
+}
+
+.app .temp{
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.app .temp div:first-of-type{
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.app .temp div:last-of-type p{
+    margin: 0;
+    color: #fff;
+    font-size: 1.4rem;
+}
+
+.app .temp div:last-of-type div{
+    height: 2px;
+    background-color: #fff;
+}
+
+.app .temp img{
+    width: 3rem;
+    height: 3rem;
+    filter: invert(91%) sepia(45%) saturate(1262%) hue-rotate(321deg) brightness(109%) contrast(98%);
+}
+
+.app .temp h1{
+    color: #fff;
+    font-size: 3.5rem;
+    margin: 0;
+    font-weight: 300;
+}
+
+.app .hourly-forecast,
+.app .week-forecast{
+    margin-top: 20px;
+    background-color: var(--secondary-bg-color);
+    border-radius: 18px;
+    display: grid;
+    padding: 10px 0;
+}
+.app .hourly-forecast{
+    grid-template-columns: repeat(5, 1fr);
+}
+
+.app .hourly-forecast > div{
+    display:flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+}
+
+.app .hourly-forecast > div img{
+    width: 1.3rem;
+}
+
+.app .hourly-forecast > div img:first-of-type{
+    width: 2.2rem;
+}
+
+.app .hourly-forecast > div p{
+    margin: 0;
+}
+
+.app .hourly-forecast > div p:nth-of-type(2),
+.app .hourly-forecast > div p:last-of-type{
+    font-size: .8rem;
+}
+.app .hourly-forecast > div img:nth-of-type(2){
+    margin-top: 15px;
+}
+
+.app .week-forecast{
+    display: grid;
+    grid-auto-flow: row;
+    grid-auto-rows: max-content;
+}
+
+.app .week-forecast > div{
+    display: grid;
+    grid-template-columns: 2fr repeat(4, 1fr);
+    align-items: center;
+}
+
+.app .week-forecast > div > div:not(:last-child){
+    display: flex;
+    align-items: center;
+    gap: 3px;
+}
+
+.app .week-forecast > div > div:last-child{
+    justify-self: start;
+    padding-left: 8px;
+}
+
+.app .week-forecast > div > *:not(:first-child){
+    justify-self: center;
+}
+
+.app .week-forecast > div h4{
+    font-weight: 400;
+    font-size: .9rem;
+    margin: 10px 0;
+    padding-left: 30px;
+}
+
+.app .week-forecast > div img{
+    width: 1.1rem;
+    height: 1.1rem;
+}
+.app .week-forecast > div > img{
+    width: 1.6rem;
+    height: 1.6rem;
+}
+
+.app .week-forecast > div p{
+    margin: 0;
+    font-size: .86rem;
 }
