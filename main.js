@@ -83,14 +83,16 @@ const addItemsToWeekForecast = (data, svgList = null, updateWeekForecastData = n
     container.innerHTML = content;
 };
 
-const input = document.getElementById('city');
-
 addItemsToHourlyForecast(placeholderDataH);
 addItemsToWeekForecast(placeholderDataW);
 
-const getData = () => {
+const input = document.getElementById('city');
+
+
+
+const getData = cityName => {
     const requestObj = {
-        city: 'Washington,DC'
+        city: cityName
     };
     return requestObj;
 };
@@ -99,31 +101,32 @@ const buildRequestUrl = (requestData) => {
     return `https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/${requestData.city}?key=S3MJMPCGJU93MVXEXW2GFJHZK`;
 };
 
-const getTxtContent = async (file) => {
+const getFileContent = async (file) => {
     const response = await fetch(file);
     const jsonResponse = await response.json();
-    const processedResponse = jsonResponse.svgList;
-    return processedResponse;
+    return jsonResponse;
 };
 
 const requestWeather = async (url) => {
     const response = await fetch(url);
     const jsonResponse = await response.json();
-    const svgList = await getTxtContent('svgList.json');
-
+    const jsonSvgList = await getFileContent('svgList.json');
+    const countries = await getFileContent('countries.min.json');
+    
     const processedData = processJsonData(jsonResponse);
-    updateHeaderData(processedData);
-    addItemsToHourlyForecast(processedData, svgList, updateHourlyForecastData);
-    addItemsToWeekForecast(processedData, svgList, updateWeekForecastData);
+    updateHeaderData(processedData, jsonSvgList.svgList);
+    addItemsToHourlyForecast(processedData, jsonSvgList.svgList, updateHourlyForecastData);
+    addItemsToWeekForecast(processedData, jsonSvgList.svgList, updateWeekForecastData);
+    chooseCity(countries);
 };
 
-const processWeatherRequest = async () => {
-    const requestData = getData();
+const processWeatherRequest = async city => {
+    const requestData = getData(city);
     const requestUrl = buildRequestUrl(requestData);
     await requestWeather(requestUrl);
 };
 
-processWeatherRequest();
+processWeatherRequest('Washington,DC');
 
 const processJsonData = jsonData => {
     const data = {
@@ -141,25 +144,24 @@ const findIcon = (iconName, svgList) => {
     return svgList.find(el => primaryRe.test(el)) || svgList.find(el => secondaryRe.test(el)) || svgList.find(el => tertiaryRe.test(el));
 }; 
 
-let iterator = 0;
+let indexSecond;
 const updateHourlyForecastData = (data, svgList , i) => {
     const today = new Date();
-    let currData;
-    if(today.getHours()+i-1 > 22){
-        currData = data.days[0].hours[iterator];
-        iterator++;
-    }
-    else currData = data.days[0].hours[today.getHours()+i-1];
+    const hours = new Date(today.getFullYear(), today.getMonth(), today.getDate(), today.getHours()+i+1).getUTCHours();
+    
+    const index = data.days[0].hours.findIndex(el => +el.datetime.split(':')[0] === hours);
+    if(i === 2) indexSecond = index;
+    // arr from server missing second entry
+    const currData = index === -1 ? data.days[0].hours[indexSecond] : data.days[0].hours[index];
     
     const dataH = dataHObj();
-    const iconMatch = findIcon(currData.icon, svgList);
-    console.log(currData);
+    const iconMatch = findIcon(currData.icon, svgList);  
     
     dataH.weatherIcon = `${'.'+iconMatch.split('weather-app')[1]}`;
     dataH.humidity = currData.humidity.toFixed(0);
     dataH.air = currData.windspeed.toFixed(0);
 
-    return dataH;
+    return dataHObj();;
 }
 
 const updateWeekForecastData = (data, svgList , i) => {
@@ -178,7 +180,8 @@ const updateWeekForecastData = (data, svgList , i) => {
 }
 
 
-const updateHeaderData = (data) => {
+const updateHeaderData = (data, svgList) => {
+    const weatherIcon = document.querySelector('.app .temp > div img');
     const dateEl = document.querySelector('.app .curr-date');
     const tempEl = document.querySelector('.app .temp > div h1');
     const tempHighEl = document.querySelector('.app .temp > div > p.tempHigh');
@@ -186,9 +189,37 @@ const updateHeaderData = (data) => {
     const today = new Date();
     
     const currData = data.days[0].hours.find(el => +el.datetime.split(':')[0] === today.getHours());
+    const iconMatch = findIcon(currData.icon, svgList);  
     
+    weatherIcon.src = `${'.'+iconMatch.split('weather-app')[1]}`;
     dateEl.innerText = `${weekDays[today.getDay()]}, ${today.getDate()} ${months[today.getMonth()]}, ${today.getHours()}: ${today.getMinutes()}`;
     tempEl.innerHTML = `${((5/9)*(currData.temp - 32)).toFixed(0)}&deg;`;
     tempHighEl.innerHTML = `${((5/9)*(data.days[0].tempmax - 32)).toFixed(0)}&deg;`;
     tempLowEl.innerHTML = `${((5/9)*(data.days[0].tempmin - 32)).toFixed(0)}&deg;`;
+};
+
+
+const chooseCity = countries => {
+    const template = city => `<div><p>${city}</p></div>`;
+    const countriesEl = document.querySelector('.app .countries');
+    let content = '';
+    input.addEventListener('input', e => {
+        content = '';
+        const re = new RegExp(`^${e.target.value}`,'i');
+        let listOfCities = [];
+        
+        if(e.target.value != '')Object.keys(countries).forEach(country => listOfCities.push(...countries[country].filter(city => re.test(city))));
+
+        const uniq = listOfCities.filter((city, i, arr) => arr.indexOf(city) === i);
+        const first15Entries = uniq.length > 10 ? uniq.splice(0, 10) : uniq;
+
+        first15Entries.forEach(city => content += template(city));
+        countriesEl.innerHTML = content;
+        countriesEl.querySelectorAll('div').forEach(el => el.addEventListener('click', clickEv => {
+            processWeatherRequest(clickEv.target.innerText);
+            countriesEl.innerHTML = '';  
+            e.target.placeholder = clickEv.target.innerText;  
+        },
+        {once:true}));
+    });
 };

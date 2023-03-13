@@ -3,6 +3,7 @@
 :root{
     --bg-color: rgb(138, 198, 238);
     --secondary-bg-color: #f5f5f5e5;
+    --input-popup: #ffffff;
 }
 
 body{
@@ -24,6 +25,7 @@ body{
     border-radius: 8px;
     background-color: var(--bg-color);
     width: 400px;
+    position: relative;
 }
 
 .app input{
@@ -72,7 +74,6 @@ body{
 .app .temp img{
     width: 3rem;
     height: 3rem;
-    filter: invert(91%) sepia(45%) saturate(1262%) hue-rotate(321deg) brightness(109%) contrast(98%);
 }
 
 .app .temp h1{
@@ -169,3 +170,43 @@ body{
     margin: 0;
     font-size: .86rem;
 }
+
+
+.countries{
+    position: absolute;
+    top: 70px;
+    z-index: 10;
+    width: calc(100% - 50px);
+    background-color: var(--input-popup);
+    border-radius: 8px;
+    box-shadow: 0 0 8px rgba(0, 0, 0, .3);
+    display: grid;
+    grid-auto-rows: max-content;
+    max-height: 60%;
+    overflow: auto;
+}
+
+.countries p{
+    padding-left: 25px;
+    font-size: 1.25rem;
+}
+
+.countries > div:not(:last-child){
+    border-bottom: 1px solid #b4b4b4;
+    transition: 400ms;
+}
+
+.countries > div:hover{
+    transition: 400ms;
+    cursor: pointer;
+    background-color: #f1f1f1;
+}
+
+.countries > div:first-child{
+    border-top-right-radius: 8px;
+    border-top-left-radius: 8px;
+  }
+.countries > div:last-child{
+    border-bottom-right-radius: 8px;
+    border-bottom-left-radius: 8px;
+  }
